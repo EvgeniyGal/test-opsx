@@ -119,6 +119,68 @@ Role-based access control utilities are available in `lib/auth.ts`:
 - `hasRoleOrHigher(userRole, requiredRole)` - Check if user has required role or higher
 - `canApproveRegistrations(role)` - Check if user can approve registrations
 - `canManageUsers(userRole, targetRole)` - Check if user can manage another user
+- Client management: `canCreateClient`, `canUpdateClient`, `canDeleteClient`, `canAssignClient`, `canApproveStatusChange`, `canRequestStatusChange`, `canManageContacts`, `canManageContracts`
+
+## 👥 Client Management
+
+Client management is available at `/clients` (authenticated users). Each client has company info, contacts, optional contracts, status workflow, and assignment.
+
+### Setup
+
+After running migrations and seed, the client management schema is already applied. No extra setup is required.
+
+### Client Status Workflow
+
+- **PROSPECT** → ACTIVE, ARCHIVED  
+- **ACTIVE** → INACTIVE, ARCHIVED  
+- **INACTIVE** → ACTIVE, ARCHIVED  
+- **ARCHIVED** — no further transitions  
+
+Comments are **required** for critical transitions: PROSPECT→ACTIVE, ACTIVE→INACTIVE, ACTIVE→ARCHIVED.
+
+### Approval Workflow
+
+- **Managers** request a status change via the client detail page; the request is created with status PENDING.
+- **Owners** review pending requests at `/admin/approvals` and can Approve or Reject.
+- **Owners** can change client status directly (no approval step).
+
+### RBAC for Client Management
+
+| Action | Owner | Manager | Admin |
+|--------|-------|---------|-------|
+| View clients | ✓ | ✓ | ✓ |
+| Create client | ✓ | ✓ | — |
+| Update client | ✓ | ✓ | — |
+| Archive (delete) client | ✓ | — | — |
+| Request status change | — | ✓ | — |
+| Approve / Reject status change | ✓ | — | — |
+| Direct status change | ✓ | — | — |
+| Assign client | ✓ | ✓ | — |
+| Manage contacts | ✓ | ✓ | — |
+| Manage contracts | ✓ | ✓ | — |
+| Add comment | ✓ | ✓ | ✓ |
+
+### Client API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/clients` | List clients (filter: status, assignedTo, search, page, limit) |
+| POST | `/api/clients` | Create client (Owner/Manager) |
+| GET | `/api/clients/[id]` | Get client details |
+| PATCH | `/api/clients/[id]` | Update client (Owner/Manager) |
+| DELETE | `/api/clients/[id]` | Archive client (Owner) |
+| POST | `/api/clients/[id]/status/request` | Request status change (Manager) |
+| POST | `/api/clients/[id]/status/approve` | Approve request (Owner) |
+| POST | `/api/clients/[id]/status/reject` | Reject request (Owner) |
+| POST | `/api/clients/[id]/status/direct` | Direct status change (Owner) |
+| GET | `/api/clients/[id]/status-history` | Get status history |
+| POST | `/api/clients/[id]/assign` | Assign client to user (Owner/Manager) |
+| GET/POST | `/api/clients/[id]/contacts` | List / add contacts |
+| PATCH/DELETE | `/api/clients/[id]/contacts/[contactId]` | Update / delete contact |
+| GET/POST | `/api/clients/[id]/contracts` | List / add contracts |
+| PATCH | `/api/clients/[id]/contracts/[contractId]` | Update contract |
+| GET/POST | `/api/clients/[id]/comments` | List / add comments |
+| GET | `/api/admin/approvals` | Pending status change requests (Owner) |
 
 ## 🗂 Project Structure
 

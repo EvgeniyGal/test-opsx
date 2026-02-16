@@ -1,6 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,18 +25,203 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum ClientStatus {
+  PROSPECT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum ContractType {
+  RETAINER
+  PROJECT_BASED
+  HOURLY
+  FIXED_PRICE
+  OTHER
+}
+
+enum StatusChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id            String      @id @default(uuid())
-  email         String      @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
   password      String
   name          String
-  role          Role        @default(ADMIN)
-  status        UserStatus  @default(PENDING)
+  role          Role       @default(ADMIN)
+  status        UserStatus @default(PENDING)
   emailVerified DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   lastLoginAt   DateTime?
+
+  // Relations
+  assignedClients           Client[]                  @relation("ClientAssignment")
+  createdClients            Client[]                  @relation("ClientCreatedBy")
+  updatedClients            Client[]                  @relation("ClientUpdatedBy")
+  createdContracts          Contract[]                @relation("ContractCreatedBy")
+  updatedContracts          Contract[]                @relation("ContractUpdatedBy")
+  statusHistoryChanges      StatusHistory[]           @relation("StatusHistoryChangedBy")
+  statusChangeRequests      StatusChangeRequest[]     @relation("StatusChangeRequestRequestedBy")
+  statusChangeReviews       StatusChangeRequest[]     @relation("StatusChangeRequestReviewedBy")
+  statusComments            StatusComment[]           @relation("StatusCommentCreatedBy")
+  comments                  Comment[]                 @relation("CommentCreatedBy")
+  clientAssignmentsAssigned ClientAssignmentHistory[] @relation("ClientAssignmentHistoryAssignedTo")
+  clientAssignmentsBy       ClientAssignmentHistory[] @relation("ClientAssignmentHistoryAssignedBy")
 
   @@index([email])
   @@index([status])
+}
+
+model Client {
+  id                 String       @id @default(uuid())
+  name               String
+  industry           String?
+  website            String?
+  taxId              String?
+  registrationNumber String?
+  logo               String?
+  status             ClientStatus @default(PROSPECT)
+  assignedTo         String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  createdBy          String
+  updatedBy          String
+
+  // Relations
+  assignedUser         User?                     @relation("ClientAssignment", fields: [assignedTo], references: [id])
+  createdByUser        User                      @relation("ClientCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser        User                      @relation("ClientUpdatedBy", fields: [updatedBy], references: [id])
+  contacts             ContactPerson[]
+  contracts            Contract[]
+  statusHistory        StatusHistory[]
+  statusChangeRequests StatusChangeRequest[]
+  comments             Comment[]
+  assignmentHistory    ClientAssignmentHistory[]
+
+  @@index([status])
+  @@index([assignedTo])
+}
+
+model ContactPerson {
+  id        String   @id @default(uuid())
+  clientId  String
+  name      String
+  email     String?
+  phone     String?
+  role      String?
+  isPrimary Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
+
+model Contract {
+  id           String       @id @default(uuid())
+  clientId     String
+  type         ContractType
+  startDate    DateTime?
+  endDate      DateTime?
+  terms        String?
+  paymentTerms String?
+  documentPath String?
+  status       String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  createdBy    String
+  updatedBy    String
+
+  // Relations
+  client        Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdByUser User   @relation("ContractCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser User   @relation("ContractUpdatedBy", fields: [updatedBy], references: [id])
+
+  @@index([clientId])
+}
+
+model StatusHistory {
+  id         String       @id @default(uuid())
+  clientId   String
+  fromStatus ClientStatus
+  toStatus   ClientStatus
+  comment    String?
+  changedAt  DateTime     @default(now())
+  changedBy  String
+
+  // Relations
+  client         Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  changedByUser  User            @relation("StatusHistoryChangedBy", fields: [changedBy], references: [id])
+  statusComments StatusComment[]
+
+  @@index([clientId])
+}
+
+model StatusChangeRequest {
+  id            String                    @id @default(uuid())
+  clientId      String
+  fromStatus    ClientStatus
+  toStatus      ClientStatus
+  comment       String?
+  status        StatusChangeRequestStatus @default(PENDING)
+  requestedBy   String
+  requestedAt   DateTime                  @default(now())
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  reviewComment String?
+
+  // Relations
+  client          Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  requestedByUser User   @relation("StatusChangeRequestRequestedBy", fields: [requestedBy], references: [id])
+  reviewedByUser  User?  @relation("StatusChangeRequestReviewedBy", fields: [reviewedBy], references: [id])
+
+  @@index([clientId, status])
+}
+
+model StatusComment {
+  id              String   @id @default(uuid())
+  statusHistoryId String
+  content         String
+  createdBy       String
+  createdAt       DateTime @default(now())
+
+  // Relations
+  statusHistory StatusHistory @relation(fields: [statusHistoryId], references: [id], onDelete: Cascade)
+  createdByUser User          @relation("StatusCommentCreatedBy", fields: [createdBy], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  clientId  String
+  content   String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  // Relations
+  client        Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdByUser User   @relation("CommentCreatedBy", fields: [createdBy], references: [id])
+
+  @@index([clientId])
+}
+
+model ClientAssignmentHistory {
+  id         String   @id @default(uuid())
+  clientId   String
+  assignedTo String
+  assignedBy String
+  assignedAt DateTime @default(now())
+
+  // Relations
+  client         Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assignedToUser User   @relation("ClientAssignmentHistoryAssignedTo", fields: [assignedTo], references: [id])
+  assignedByUser User   @relation("ClientAssignmentHistoryAssignedBy", fields: [assignedBy], references: [id])
+
+  @@index([clientId])
 }

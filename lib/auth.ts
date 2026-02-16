@@ -7,3 +7,15 @@ export {
   canApproveRegistrations,
   canManageUsers,
 } from "./auth/rbac";
+
+// Export client management RBAC utilities
+export {
+  canCreateClient,
+  canUpdateClient,
+  canDeleteClient,
+  canAssignClient,
+  canApproveStatusChange,
+  canRequestStatusChange,
+  canManageContacts,
+  canManageContracts,
+} from "./auth/clients";

@@ -20,6 +20,18 @@ export default withAuth(
       }
     }
 
+    // Protect /admin/approvals route - require OWNER
+    if (path.startsWith("/admin/approvals")) {
+      if (!token) {
+        return NextResponse.redirect(new URL("/auth/signin", req.url));
+      }
+
+      const userRole = token.role as Role;
+      if (userRole !== "OWNER") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+
     return NextResponse.next();
   },
   {
@@ -29,6 +41,11 @@ export default withAuth(
 
         // Protect all /admin routes - require authentication
         if (path.startsWith("/admin")) {
+          return !!token;
+        }
+
+        // Protect /clients routes - require authentication
+        if (path.startsWith("/clients")) {
           return !!token;
         }
 
@@ -45,5 +62,6 @@ export default withAuth(
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/clients/:path*",
   ],
 };
