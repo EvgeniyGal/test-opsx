@@ -1,0 +1,61 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  # HR Agency CRM
+  
+  A premium, feature-rich CRM for HR agencies built with Next.js 15, Prisma 7, and Tailwind v4.
+  
+  ## Features
+  
+  - **Multi-role Auth**: Owner, Manager, and Admin with RBAC enforcement.
+  - **Client & Job Management**: Track partners and positions in a high-end interface.
+  - **Candidate Pipeline**: Visual Kanban board with drag-and-drop interactivity.
+  - **Secure CV Storage**: Integrated Google Cloud Storage with metadata tracking.
+  - **Real-time Analytics**: Dashboard with interactive charts for status monitoring.
+  - **Audit Logging**: Full activity tracking for all significant user actions.
+  
+  ## Tech Stack
+  
+  - **Framework**: Next.js 15 (App Router)
+  - **Database**: PostgreSQL
+  - **ORM**: Prisma 7
+  - **Auth**: NextAuth.js
+  - **Styling**: Tailwind CSS v4, shadcn/ui
+  - **Interactivity**: @dnd-kit, Recharts
+  - **Storage**: Google Cloud Storage
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  proposal:
+    - Always consider RBAC implications: which roles (Owner/Manager/Admin) need access?
+    - Include security considerations, especially for CV storage and sensitive candidate data
+    - Define scope boundaries clearly - what's in vs. out of scope
+    - Consider audit logging requirements for any user actions
+    - Mention integration points with existing features (pipeline, analytics, etc.)
+  
+  design:
+    - Use Next.js 15 App Router patterns (Server Components, Server Actions, Route Handlers)
+    - Follow shadcn/ui component patterns and Tailwind v4 conventions
+    - Include Prisma schema changes with field types, relations, and indexes
+    - Specify RBAC checks at component and API route levels
+    - For interactive features, mention @dnd-kit for drag-and-drop or Recharts for visualizations
+    - Consider Google Cloud Storage integration patterns for file operations
+    - Include error handling and loading states
+  
+  spec:
+    - Define clear domain entities and their relationships
+    - Specify API contracts with request/response types
+    - Include Prisma model definitions with all fields and relations
+    - Document permission requirements per role
+    - Define validation rules and business logic constraints
+  
+  tasks:
+    - Break into logical chunks: Prisma schema → migrations → API routes → components → tests
+    - Reference specific Prisma models and fields when creating database tasks
+    - Include component file paths following Next.js App Router structure
+    - Add testing tasks for critical paths (auth, file operations, RBAC)
+    - Consider migration strategy for schema changes
