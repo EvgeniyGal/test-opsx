@@ -51,3 +51,5 @@ prisma/migrations/
 
 # OpenSpec (keep config and specs, ignore generated/temp files if any)
 # Note: OpenSpec artifacts should be committed
+
+/lib/generated/prisma
