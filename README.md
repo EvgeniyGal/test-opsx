@@ -63,11 +63,17 @@ Run Prisma migrations to set up your database schema:
 npx prisma migrate dev
 ```
 
-(Optional) Seed the database with initial data:
+Seed the database with the initial Owner user:
 
 ```bash
-npx prisma db seed
+npx tsx prisma/seed.ts
 ```
+
+**Default Owner Credentials:**
+- Email: `owner@example.com`
+- Password: `password123`
+
+**⚠️ IMPORTANT**: Change the default password in production!
 
 ### 5. Start the development server
 
@@ -77,6 +83,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
+### 6. Authentication
+
+- **Sign In**: Navigate to `/auth/signin` and use the Owner credentials
+- **Sign Up**: New users can register at `/auth/signup` (requires approval)
+- **User Management**: Owners and Managers can approve users at `/admin/users/pending`
+
 ## 📜 Available Scripts
 
 - `npm run dev` - Start the development server
@@ -84,6 +96,29 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 - `npm start` - Start the production server (after building)
 - `npm run lint` - Run ESLint to check code quality
 - `npm run format` - Format code using Prettier
+
+## 🔐 Authentication & Roles
+
+The application uses a hierarchical role system:
+
+- **OWNER**: Full system access, can manage all users, approve registrations, suspend users
+- **MANAGER**: Can manage clients, jobs, candidates, approve registrations, manage non-Owner users
+- **ADMIN**: Can view data and manage candidates (limited editing)
+
+### User Registration Flow
+
+1. User registers at `/auth/signup`
+2. Account is created with `PENDING` status
+3. Owner or Manager approves at `/admin/users/pending`
+4. User can then sign in
+
+### RBAC Utilities
+
+Role-based access control utilities are available in `lib/auth.ts`:
+
+- `hasRoleOrHigher(userRole, requiredRole)` - Check if user has required role or higher
+- `canApproveRegistrations(role)` - Check if user can approve registrations
+- `canManageUsers(userRole, targetRole)` - Check if user can manage another user
 
 ## 🗂 Project Structure
 
