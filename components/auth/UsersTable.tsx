@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { Role, UserStatus } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import { User, Mail, Shield, Calendar } from "lucide-react";
 
 interface User {
   id: string;
@@ -141,75 +143,171 @@ export function UsersTable() {
           </SelectContent>
         </Select>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Last Login</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                {canEditRole(user.role) ? (
-                  <Select
-                    value={user.role}
-                    onValueChange={(value) =>
-                      handleRoleChange(user.id, value as Role)
-                    }
-                  >
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="MANAGER">Manager</SelectItem>
-                      {userRole === "OWNER" && (
-                        <SelectItem value="OWNER">Owner</SelectItem>
+
+      {/* Mobile: card list */}
+      <div className="space-y-3 md:hidden">
+        {users.map((user) => (
+          <Card key={user.id}>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-base truncate">
+                      {user.name}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                        {user.role}
+                      </span>
+                      <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                        {user.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1.5 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      {user.lastLoginAt
+                        ? new Date(user.lastLoginAt).toLocaleDateString()
+                        : "Never logged in"}
+                    </span>
+                  </div>
+                </div>
+                <div className="pt-2 border-t">
+                  {canEditRole(user.role) ? (
+                    <Select
+                      value={user.role}
+                      onValueChange={(value) =>
+                        handleRoleChange(user.id, value as Role)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="MANAGER">Manager</SelectItem>
+                        {userRole === "OWNER" && (
+                          <SelectItem value="OWNER">Owner</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <Shield className="h-3.5 w-3.5 shrink-0" />
+                      <span>{user.role}</span>
+                    </div>
+                  )}
+                  {(userRole === "OWNER" && user.status === "ACTIVE") ||
+                  (userRole === "OWNER" && user.status === "SUSPENDED") ? (
+                    <div className="mt-2">
+                      {user.status === "ACTIVE" && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="w-full"
+                          onClick={() => handleSuspend(user.id)}
+                        >
+                          Suspend
+                        </Button>
                       )}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <span>{user.role}</span>
-                )}
-              </TableCell>
-              <TableCell>{user.status}</TableCell>
-              <TableCell>
-                {user.lastLoginAt
-                  ? new Date(user.lastLoginAt).toLocaleDateString()
-                  : "Never"}
-              </TableCell>
-              <TableCell className="text-right">
-                {userRole === "OWNER" && user.status === "ACTIVE" && (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleSuspend(user.id)}
-                  >
-                    Suspend
-                  </Button>
-                )}
-                {userRole === "OWNER" && user.status === "SUSPENDED" && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={() => handleReactivate(user.id)}
-                  >
-                    Reactivate
-                  </Button>
-                )}
-              </TableCell>
+                      {user.status === "SUSPENDED" && (
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="w-full"
+                          onClick={() => handleReactivate(user.id)}
+                        >
+                          Reactivate
+                        </Button>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Last Login</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  {canEditRole(user.role) ? (
+                    <Select
+                      value={user.role}
+                      onValueChange={(value) =>
+                        handleRoleChange(user.id, value as Role)
+                      }
+                    >
+                      <SelectTrigger className="w-[120px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="MANAGER">Manager</SelectItem>
+                        {userRole === "OWNER" && (
+                          <SelectItem value="OWNER">Owner</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span>{user.role}</span>
+                  )}
+                </TableCell>
+                <TableCell>{user.status}</TableCell>
+                <TableCell>
+                  {user.lastLoginAt
+                    ? new Date(user.lastLoginAt).toLocaleDateString()
+                    : "Never"}
+                </TableCell>
+                <TableCell className="text-right">
+                  {userRole === "OWNER" && user.status === "ACTIVE" && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleSuspend(user.id)}
+                    >
+                      Suspend
+                    </Button>
+                  )}
+                  {userRole === "OWNER" && user.status === "SUSPENDED" && (
+                    <Button
+                      size="sm"
+                      variant="default"
+                      onClick={() => handleReactivate(user.id)}
+                    >
+                      Reactivate
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

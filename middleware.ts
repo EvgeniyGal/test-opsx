@@ -8,6 +8,10 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
+    // Set pathname header for Server Components to access
+    const response = NextResponse.next();
+    response.headers.set("x-pathname", path);
+
     // Protect /admin/users/** routes - require OWNER or MANAGER
     if (path.startsWith("/admin/users")) {
       if (!token) {
@@ -32,7 +36,7 @@ export default withAuth(
       }
     }
 
-    return NextResponse.next();
+    return response;
   },
   {
     callbacks: {
@@ -61,7 +65,13 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/clients/:path*",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
