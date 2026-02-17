@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { headers } from "next/headers";
 import "./globals.css";
@@ -21,15 +22,17 @@ export default async function RootLayout({
   const isAuthPage = pathname.startsWith("/auth");
 
   return (
-    <html lang="en" className="antialiased">
+    <html lang="en" className="antialiased" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <SessionProvider>
-          {isAuthPage ? (
-            children
-          ) : (
-            <AppLayout>{children}</AppLayout>
-          )}
-        </SessionProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            {isAuthPage ? (
+              children
+            ) : (
+              <AppLayout>{children}</AppLayout>
+            )}
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

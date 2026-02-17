@@ -38,7 +38,7 @@ export function Sidebar({
     .slice(0, 2);
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-background">
+    <div className="flex h-full w-64 flex-col border-r bg-background shadow-lg">
       {/* Navigation Menu */}
       <nav className="flex-1 space-y-1 p-4">
         {menuItems.map((item) => {
@@ -48,7 +48,7 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               onClick={onNavigate}
-              className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                 isActive
                   ? "bg-accent text-accent-foreground"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
