@@ -19,6 +19,11 @@ export const menuItems: MenuItem[] = [
     roles: ["OWNER", "MANAGER", "ADMIN"],
   },
   {
+    label: "Candidates",
+    href: "/candidates",
+    roles: ["OWNER", "MANAGER", "ADMIN"],
+  },
+  {
     label: "Users",
     href: "/admin/users",
     roles: ["OWNER", "MANAGER"],

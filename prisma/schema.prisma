@@ -46,6 +46,15 @@ enum StatusChangeRequestStatus {
   REJECTED
 }
 
+enum CandidateStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+}
+
 model User {
   id            String     @id @default(uuid())
   email         String     @unique
@@ -71,6 +80,14 @@ model User {
   comments                  Comment[]                 @relation("CommentCreatedBy")
   clientAssignmentsAssigned ClientAssignmentHistory[] @relation("ClientAssignmentHistoryAssignedTo")
   clientAssignmentsBy       ClientAssignmentHistory[] @relation("ClientAssignmentHistoryAssignedBy")
+  assignedCandidates        Candidate[]               @relation("CandidateAssignment")
+  createdCandidates         Candidate[]               @relation("CandidateCreatedBy")
+  updatedCandidates         Candidate[]               @relation("CandidateUpdatedBy")
+  candidateStatusChanges    CandidateStatusHistory[]  @relation("CandidateStatusHistoryChangedBy")
+  candidateAssignmentsAssigned CandidateAssignmentHistory[] @relation("CandidateAssignmentHistoryAssignedTo")
+  candidateAssignmentsBy    CandidateAssignmentHistory[] @relation("CandidateAssignmentHistoryAssignedBy")
+  candidateNotes            CandidateNote[]            @relation("CandidateNoteCreatedBy")
+  candidateComments         CandidateComment[]        @relation("CandidateCommentCreatedBy")
 
   @@index([email])
   @@index([status])
@@ -224,4 +241,102 @@ model ClientAssignmentHistory {
   assignedByUser User   @relation("ClientAssignmentHistoryAssignedBy", fields: [assignedBy], references: [id])
 
   @@index([clientId])
+}
+
+model Candidate {
+  id                 String          @id @default(uuid())
+  name               String
+  email              String
+  phone              String?
+  location           String?
+  linkedInUrl        String?
+  portfolioUrl       String?
+  currentPosition    String?
+  yearsOfExperience  Int?
+  skills             Json?
+  notes              String?
+  status             CandidateStatus @default(APPLIED)
+  assignedTo         String?
+  cvStoragePath      String?
+  cvFileName         String?
+  cvFileSize         Int?
+  cvMimeType         String?
+  jobId              String?         // Optional for future job management
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  createdBy          String
+  updatedBy          String
+
+  // Relations
+  assignedUser         User?                      @relation("CandidateAssignment", fields: [assignedTo], references: [id])
+  createdByUser        User                       @relation("CandidateCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser        User                       @relation("CandidateUpdatedBy", fields: [updatedBy], references: [id])
+  statusHistory        CandidateStatusHistory[]
+  assignmentHistory    CandidateAssignmentHistory[]
+  candidateNotes       CandidateNote[]
+  candidateComments   CandidateComment[]
+
+  @@index([status])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([email])
+}
+
+model CandidateStatusHistory {
+  id         String          @id @default(uuid())
+  candidateId String
+  fromStatus CandidateStatus
+  toStatus   CandidateStatus
+  comment    String?
+  changedAt  DateTime        @default(now())
+  changedBy  String
+
+  // Relations
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  changedByUser     User      @relation("CandidateStatusHistoryChangedBy", fields: [changedBy], references: [id])
+
+  @@index([candidateId])
+}
+
+model CandidateAssignmentHistory {
+  id         String   @id @default(uuid())
+  candidateId String
+  assignedTo String
+  assignedBy String
+  assignedAt DateTime @default(now())
+
+  // Relations
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assignedToUser    User      @relation("CandidateAssignmentHistoryAssignedTo", fields: [assignedTo], references: [id])
+  assignedByUser    User      @relation("CandidateAssignmentHistoryAssignedBy", fields: [assignedBy], references: [id])
+
+  @@index([candidateId])
+}
+
+model CandidateNote {
+  id         String   @id @default(uuid())
+  candidateId String
+  content    String
+  createdBy  String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  createdByUser     User      @relation("CandidateNoteCreatedBy", fields: [createdBy], references: [id])
+
+  @@index([candidateId])
+}
+
+model CandidateComment {
+  id         String   @id @default(uuid())
+  candidateId String
+  content    String
+  createdBy  String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  createdByUser     User      @relation("CandidateCommentCreatedBy", fields: [createdBy], references: [id])
+
+  @@index([candidateId])
 }

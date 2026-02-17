@@ -54,6 +54,9 @@ Update the following variables in `.env`:
 
 - `DATABASE_URL`: PostgreSQL connection string (format: `postgresql://user:password@host:port/database`)
 - `AUTH_SECRET`: Generate a secret key (use `openssl rand -base64 32` or visit https://generate-secret.vercel.app/32)
+- `GOOGLE_CLOUD_PROJECT_ID`: Your Google Cloud project ID (required for CV storage)
+- `GOOGLE_CLOUD_STORAGE_BUCKET`: Your Google Cloud Storage bucket name (required for CV storage)
+- `GOOGLE_APPLICATION_CREDENTIALS`: Path to your Google Cloud service account JSON key file (optional, can use default credentials)
 
 ### 4. Set up the database
 
@@ -278,6 +281,9 @@ Make sure to set the following environment variables in your deployment platform
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
+- `GOOGLE_CLOUD_PROJECT_ID` (required for CV storage)
+- `GOOGLE_CLOUD_STORAGE_BUCKET` (required for CV storage)
+- `GOOGLE_APPLICATION_CREDENTIALS` (optional, can use default credentials)
 - `NODE_ENV` (automatically set to "production" in most platforms)
 
 ## 📝 License

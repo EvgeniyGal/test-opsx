@@ -31,26 +31,16 @@ The system SHALL display a header component at the top of authenticated pages wi
 - **THEN** header displays application name or logo
 - **AND** header is fixed at top of viewport
 - **AND** header has consistent height
-- **AND** header has enhanced shadow (`shadow-lg`) for depth
-- **AND** header background may include subtle gradient accents matching authentication pages
 
 #### Scenario: Header displays mobile menu button
 - **WHEN** authenticated user views page on mobile viewport (< 768px width)
 - **THEN** header displays hamburger menu button
 - **AND** clicking hamburger button opens mobile sidebar drawer
-- **AND** hamburger button has smooth hover transitions matching authentication page interactions
 
 #### Scenario: Header does not display mobile menu on desktop
 - **WHEN** authenticated user views page on desktop viewport (≥ 768px width)
 - **THEN** header does not display hamburger menu button
 - **AND** sidebar is persistently visible
-
-#### Scenario: Header displays theme toggle
-- **WHEN** authenticated user views header
-- **THEN** header displays theme toggle button
-- **AND** toggle button shows current theme (Sun icon for light, Moon icon for dark)
-- **AND** clicking toggle switches between light and dark theme
-- **AND** theme toggle is accessible on all viewports
 
 ### Requirement: Sidebar navigation
 The system SHALL provide a sidebar navigation component with menu items for authenticated users.
@@ -60,8 +50,6 @@ The system SHALL provide a sidebar navigation component with menu items for auth
 - **THEN** sidebar is persistently visible on left side
 - **AND** sidebar displays navigation menu items
 - **AND** sidebar has fixed width and does not collapse
-- **AND** sidebar has enhanced shadow (`shadow-lg`) for depth
-- **AND** sidebar background may include subtle gradient accents
 
 #### Scenario: Sidebar becomes drawer on mobile
 - **WHEN** authenticated user views page on mobile viewport (< 768px width)
@@ -72,35 +60,32 @@ The system SHALL provide a sidebar navigation component with menu items for auth
 
 #### Scenario: Sidebar displays navigation menu items
 - **WHEN** authenticated user views sidebar
-- **THEN** sidebar displays menu items: Dashboard, Clients, Candidates
+- **THEN** sidebar displays menu items: Dashboard, Clients
 - **AND** each menu item is a clickable link to corresponding route
 - **AND** menu items are visually distinct and properly spaced
-- **AND** menu items have smooth hover transitions (`hover:bg-accent transition-colors`)
-- **AND** menu items have enhanced visual styling matching authentication page quality
 
 #### Scenario: Sidebar displays active route
 - **WHEN** authenticated user views sidebar
 - **THEN** menu item corresponding to current route is visually highlighted
 - **AND** active menu item has distinct styling (e.g., background color, font weight)
-- **AND** active menu item may include gradient accent or enhanced shadow for emphasis
 
 ### Requirement: Role-based menu visibility
 The system SHALL display different menu items in sidebar based on user role (Owner, Manager, Admin).
 
 #### Scenario: Owner sees all menu items
 - **WHEN** Owner views sidebar
-- **THEN** sidebar displays: Dashboard, Clients, Candidates, Users, Pending Users, Approvals
+- **THEN** sidebar displays: Dashboard, Clients, Users, Pending Users, Approvals
 - **AND** all menu items are accessible
 
 #### Scenario: Manager sees limited admin menu items
 - **WHEN** Manager views sidebar
-- **THEN** sidebar displays: Dashboard, Clients, Candidates, Users, Pending Users
+- **THEN** sidebar displays: Dashboard, Clients, Users, Pending Users
 - **AND** sidebar does not display Approvals menu item
 - **AND** Approvals route is not accessible
 
 #### Scenario: Admin sees view-only menu items
 - **WHEN** Admin views sidebar
-- **THEN** sidebar displays: Dashboard, Clients, Candidates
+- **THEN** sidebar displays: Dashboard, Clients
 - **AND** sidebar does not display Users, Pending Users, or Approvals menu items
 - **AND** admin routes are not accessible
 
@@ -138,15 +123,12 @@ The system SHALL display a minimal footer component at the bottom of authenticat
 - **THEN** footer is displayed at bottom of page
 - **AND** footer spans full width
 - **AND** footer displays copyright information
-- **AND** footer may include subtle gradient background or decorative elements
-- **AND** footer has enhanced shadow (`shadow-lg`) for depth
 
 #### Scenario: Footer displays minimal content
 - **WHEN** authenticated user views footer
 - **THEN** footer displays application name
 - **AND** footer displays copyright symbol and year
 - **AND** footer does not display navigation links or complex content
-- **AND** footer styling matches authentication page aesthetic
 
 #### Scenario: Footer does not display on auth pages
 - **WHEN** user views page under `/auth/*` routes
@@ -166,9 +148,6 @@ The system SHALL provide a dashboard page as the main landing page for authentic
 - **THEN** dashboard displays welcome message
 - **AND** dashboard displays basic overview or quick links
 - **AND** dashboard content is appropriate for user's role
-- **AND** dashboard page has gradient background (`bg-gradient-to-br from-gray-50 to-gray-100`) matching authentication pages
-- **AND** dashboard cards use enhanced styling (`rounded-2xl shadow-xl`) matching authentication page quality
-- **AND** dashboard cards have smooth hover effects (`hover:shadow-2xl transition-shadow`)
 
 #### Scenario: Home page redirects authenticated users to dashboard
 - **WHEN** authenticated user accesses home page (`/`)

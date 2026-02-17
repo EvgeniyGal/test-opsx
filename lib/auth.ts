@@ -19,3 +19,13 @@ export {
   canManageContacts,
   canManageContracts,
 } from "./auth/clients";
+
+// Export candidate management RBAC utilities
+export {
+  canCreateCandidate,
+  canUpdateCandidate,
+  canUpdateCandidateCoreFields,
+  canDeleteCandidate,
+  canAssignCandidate,
+  canUpdateCandidateStatus,
+} from "./auth/candidates";
